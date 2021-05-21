@@ -34,9 +34,7 @@ install           | Install Pega Platform into your database without deploying.
 install-deploy    | Install Pega Platform into your database and then deploy.
 upgrade           | Upgrade or patch Pega Platform in your database without deploying.
 upgrade-deploy    | Upgrade or patch Pega Platform in your database and then deploy.
-<!--upgrade           | Upgrade the Pega Platform installation in your database.
-upgrade-deploy    | Upgrade the Pega Platform installation in your database, and then deploy.
--->
+
 Example:
 
 ```yaml
@@ -133,6 +131,25 @@ docker:
     imagePullPolicy: "Always"
 ```
 
+## Running Pega With Restricted Privileges
+
+You may opt to run Pega with a linux user whose permissions are constrained at an operating system level.  This is currently an opt-in feature.  Set the `global.runWithRestrictedUserPermissions` to true to enable this feature.
+
+```yaml
+runWithRestrictedUserPermissions: "true"
+```
+
+### Running with Restricted Privileges on Openshift
+
+The Openshift platform contains additional default security features that will prevent the proper function of this feature.  It is generally recommended that Openshift users leverage Openshift's OOTB security features, but it is possible to configure Openshift and the Pega Helm Charts to use it.
+
+To leverage the this feature on Openshift:
+1. Set the `runWithRestrictedUserPermissions` to `true` as above.
+2. Create a service account for the Pega deployment: `oc create serviceaccount pega`.
+3. Allow this service account `anyuid` scc access: `oc adm policy add-scc-to-user anyuid -z pega --as system:admin` (requires admin access).
+4. For each Pega tier defined under `global.tier`, add a `custom.serviceAccountName` to `pega`.
+5. Perform `helm install` 
+
 ## Deployment Name (Optional)
 
 Specify a deployment name that is used to differentiate this deployment in your environment. This name will be prepended to the various Pega tiers and the associated k8s objects in your deployment. Your deployment name should be constrained to lowercase alphanumeric and '-' characters.
@@ -158,6 +175,7 @@ app1-dev-web-788cfb8cc4-6c5nz     1/1     Running   0          8m57s
 app1-dev-web-788cfb8cc4-gcltx     1/1     Running   0          24m
 ```
 The default value is "pega" if it is unset.
+
 
 ## Tiers of a Pega deployment
 
